@@ -6,7 +6,8 @@ export function checkPosition() {
   const scrolled = window.scrollY;
   const threshold = height - screenHeight / 4;
   const position = scrolled + screenHeight;
-  if (position >= threshold) {
+  if (position >= (threshold - 500)) {
+    debugger
     loadMore();
   }
 }

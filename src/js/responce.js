@@ -84,13 +84,13 @@ function responce(data) {
     })
     .join('');
   refs.galleryList.insertAdjacentHTML('beforeend', render);
-  lightbox() 
+  lightbox.refresh() 
   smothScroll()
 }
 
-function lightbox() {
- const Lightbox = new simpleLightbox('.gallery a');
-}
+ 
+ const lightbox = new simpleLightbox('.gallery a');
+
 
 export function loadMore() {
   options.incrimentPage();
