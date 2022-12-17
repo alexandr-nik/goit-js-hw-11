@@ -1,25 +1,29 @@
 import { refs } from './js/refs';
-import { goForImages } from './js/responce';
+import { pageCheck } from './js/responce';
 import { options } from './js/responce';
 import Notiflix from 'notiflix';
+import { resetOptionPage } from './js/responce';
 
 refs.form.addEventListener('input', searchInput);
 refs.searchBtn.addEventListener('click', onButtonClick);
 
 function searchInput(e) {
   options.query = e.target.value;
+  
 }
 
 function onButtonClick(e) {
   e.preventDefault();
-  if (options.q.trim() === '') {
+  if (options.q.trim() === '' || options.query === '') {
     Notiflix.Notify.failure('Please enter a valid request');
     refs.form.reset();
     return;
   }
   refs.galleryList.innerHTML = '';
   refs.form.reset();
-  goForImages();
+  
+  resetOptionPage();
+  pageCheck();
 }
 
 export function smothScroll() {

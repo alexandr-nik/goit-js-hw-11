@@ -1,14 +1,16 @@
 import throttle from 'lodash.debounce';
 import axios from 'axios';
 import { refs } from './refs';
-import { checkPosition } from './scroll';
 import { smothScroll } from '..';
 import simpleLightbox from 'simplelightbox';
 import Notiflix from 'notiflix';
+import { addListenerScroll, checkPosition } from './scroll';
+import { removeListenerScroll } from './scroll';
 
 class pixabayOptions {
   constructor() {
     this.page = 1;
+    this.page_max = 0;
     this.url = 'https://pixabay.com/api/';
     this.key = '32020206-eb1e8243d0555b8d860dcfe9c';
     this.image_type = 'photo';
@@ -16,7 +18,7 @@ class pixabayOptions {
     this.q = '';
     this.orientation = 'horizontal';
     this.safesearch = true;
-    this.totalHits = 1;
+    this.totalHits = 0;
    }
   incrimentPage() {
     this.page = this.page + 1;
@@ -27,36 +29,50 @@ class pixabayOptions {
 }
 
 export const options = new pixabayOptions();
+export function resetOptionPage() {
+  options.page_max = 2;
+  options.page = 1;
+}
+
+export function pageCheck() {
+  const {  page, page_max } =
+  options;
+  if (page <= page_max){
+    axiosGet();
+   return;
+  }
+  Notiflix.Notify.success("We're sorry, but you've reached the end of search results.");
+  removeListenerScroll();
+
+
+
+}
 
 async function axiosGet() {
-  const { url, key, q, page, per_page, image_type, orientation, safesearch, totalHits } =
+  const { url, key, q, page, per_page, image_type, orientation, safesearch } =
     options;
-      if (page > Math.ceil(totalHits / per_page)){
-    Notiflix.Notify.success("We're sorry, but you've reached the end of search results.");
-    return
-  }
   const URL = `${url}?key=${key}&q=${q}&image_type=${image_type}&orientation=${orientation}&safesearch=${safesearch}&page=${page}&per_page=${per_page}`;
   await axios(URL).then(res => {
-    checkResponse(res.data);
+    checkResponse(res.data);  
   });
 }
 
 function checkResponse(data) {
-  options.totalHits = data.totalHits;
-  if (data.totalHits === 0) {
+if (data.totalHits){
+  options.totalHits = data.totalHits; 
+  options.page_max = Math.ceil(options.totalHits / options.per_page);
+  responce(data);
+} 
+if (data.hits.length === 0) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again'
     );
     return;
   } else if (options.page === 1) {
-    Notiflix.Notify.success(`Hooray! We found ${options.totalHits} images.`);     
+    Notiflix.Notify.success(`Hooray! We found ${options.totalHits} images.`);  
+    addListenerScroll();   
   }
- 
-  responce(data);
-}
-
-export function goForImages() {
-  axiosGet();
+  
 }
 
 function responce(data) {
@@ -95,8 +111,8 @@ function responce(data) {
 
 export function loadMore() {
   options.incrimentPage();
-  axiosGet();
+  pageCheck();
 }
 
-window.addEventListener('scroll', throttle(checkPosition, 200));
+
 
