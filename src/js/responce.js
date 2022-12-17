@@ -16,8 +16,8 @@ class pixabayOptions {
     this.q = '';
     this.orientation = 'horizontal';
     this.safesearch = true;
-    this.totalHits = 0;
-  }
+    this.totalHits = 1;
+   }
   incrimentPage() {
     this.page = this.page + 1;
   }
@@ -29,8 +29,12 @@ class pixabayOptions {
 export const options = new pixabayOptions();
 
 async function axiosGet() {
-  const { url, key, q, page, per_page, image_type, orientation, safesearch } =
+  const { url, key, q, page, per_page, image_type, orientation, safesearch, totalHits } =
     options;
+      if (page > Math.ceil(totalHits / per_page)){
+    Notiflix.Notify.success("We're sorry, but you've reached the end of search results.");
+    return
+  }
   const URL = `${url}?key=${key}&q=${q}&image_type=${image_type}&orientation=${orientation}&safesearch=${safesearch}&page=${page}&per_page=${per_page}`;
   await axios(URL).then(res => {
     checkResponse(res.data);
@@ -45,12 +49,9 @@ function checkResponse(data) {
     );
     return;
   } else if (options.page === 1) {
-    Notiflix.Notify.success(`Hooray! We found ${options.totalHits} images.`);
-       
-  }else if (options.page > Math.ceil(options.totalHits / options.per_page)){
-    Notiflix.Notify.success("We're sorry, but you've reached the end of search results.");
-    return
+    Notiflix.Notify.success(`Hooray! We found ${options.totalHits} images.`);     
   }
+ 
   responce(data);
 }
 
