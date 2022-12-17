@@ -1,10 +1,9 @@
-import throttle from 'lodash.debounce';
 import axios from 'axios';
 import { refs } from './refs';
 import { smothScroll } from '..';
 import simpleLightbox from 'simplelightbox';
 import Notiflix from 'notiflix';
-import { addListenerScroll, checkPosition } from './scroll';
+import { addListenerScroll } from './scroll';
 import { removeListenerScroll } from './scroll';
 
 class pixabayOptions {
@@ -19,7 +18,7 @@ class pixabayOptions {
     this.orientation = 'horizontal';
     this.safesearch = true;
     this.totalHits = 0;
-   }
+  }
   incrimentPage() {
     this.page = this.page + 1;
   }
@@ -35,17 +34,15 @@ export function resetOptionPage() {
 }
 
 export function pageCheck() {
-  const {  page, page_max } =
-  options;
-  if (page <= page_max){
+  const { page, page_max } = options;
+  if (page <= page_max) {
     axiosGet();
-   return;
+    return;
   }
-  Notiflix.Notify.success("We're sorry, but you've reached the end of search results.");
+  Notiflix.Notify.failure(
+    "We're sorry, but you've reached the end of search results."
+  );
   removeListenerScroll();
-
-
-
 }
 
 async function axiosGet() {
@@ -53,26 +50,25 @@ async function axiosGet() {
     options;
   const URL = `${url}?key=${key}&q=${q}&image_type=${image_type}&orientation=${orientation}&safesearch=${safesearch}&page=${page}&per_page=${per_page}`;
   await axios(URL).then(res => {
-    checkResponse(res.data);  
+    checkResponse(res.data);
   });
 }
 
 function checkResponse(data) {
-if (data.totalHits){
-  options.totalHits = data.totalHits; 
-  options.page_max = Math.ceil(options.totalHits / options.per_page);
-  responce(data);
-} 
-if (data.hits.length === 0) {
+  if (data.totalHits) {
+    options.totalHits = data.totalHits;
+    options.page_max = Math.ceil(options.totalHits / options.per_page);
+    responce(data);
+  }
+  if (data.hits.length === 0) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again'
     );
     return;
   } else if (options.page === 1) {
-    Notiflix.Notify.success(`Hooray! We found ${options.totalHits} images.`);  
-    addListenerScroll();   
+    Notiflix.Notify.success(`Hooray! We found ${options.totalHits} images.`);
+    addListenerScroll();
   }
-  
 }
 
 function responce(data) {
@@ -101,18 +97,13 @@ function responce(data) {
     })
     .join('');
   refs.galleryList.insertAdjacentHTML('beforeend', render);
-  lightbox.refresh() 
-  smothScroll()
+  lightbox.refresh();
+  smothScroll();
 }
 
- 
- const lightbox = new simpleLightbox('.gallery a');
-
+const lightbox = new simpleLightbox('.gallery a');
 
 export function loadMore() {
   options.incrimentPage();
   pageCheck();
 }
-
-
-

@@ -4,24 +4,19 @@ import { options } from './js/responce';
 import Notiflix from 'notiflix';
 import { resetOptionPage } from './js/responce';
 
-refs.form.addEventListener('input', searchInput);
 refs.searchBtn.addEventListener('click', onButtonClick);
-
-function searchInput(e) {
-  options.query = e.target.value;
-  
-}
 
 function onButtonClick(e) {
   e.preventDefault();
-  if (options.q.trim() === '' || options.query === '') {
+  const input = refs.input.value;
+  if (input.trim() === '' || input.length < 3) {
     Notiflix.Notify.failure('Please enter a valid request');
-    refs.form.reset();
+    refs.input.value = '';
     return;
   }
+  options.query = input;
   refs.galleryList.innerHTML = '';
-  refs.form.reset();
-  
+  refs.input.value = '';
   resetOptionPage();
   pageCheck();
 }
