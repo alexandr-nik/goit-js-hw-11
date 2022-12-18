@@ -1,7 +1,7 @@
 import { loadMore } from './responce';
+import throttle from 'lodash.throttle';
 
-export async function checkPosition() {
-  await setScrollTimeout();
+export  function checkPosition() {
   const height = document.body.offsetHeight;
   const screenHeight = window.innerHeight;
   const scrolled = window.scrollY;
@@ -13,12 +13,10 @@ export async function checkPosition() {
 }
 
 export function addListenerScroll() {
-  window.addEventListener('scroll', checkPosition);
+  window.addEventListener('scroll', throtFun);
 }
 export function removeListenerScroll() {
-  window.removeEventListener('scroll', checkPosition);
+  window.removeEventListener('scroll', throtFun);
 }
 
-function setScrollTimeout() {
-  setTimeout(() => {}, 200);
-}
+let throtFun = throttle(checkPosition, 200)
